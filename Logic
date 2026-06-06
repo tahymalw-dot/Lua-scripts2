@@ -260,15 +260,15 @@ function Logic.LoadEliteSupportModule(Window, OrionLib)
         end
     })
 
-    -- // 2. واجهة العرض الأسطورية (Popup GUI) - التعديل هنا فقط وحصرياً
+    -- // 2. واجهة العرض الأسطورية (Popup GUI) - الحجم المتوسط والحل المضمون 1000% لزر الإغلاق
     local function ShowTicketDetailGUI(t)
         local ScreenGui = Instance.new("ScreenGui", (gethui and gethui()) or game.CoreGui)
         ScreenGui.Name = "EliteTicketDetail"
         ScreenGui.ResetOnSpawn = false
         
         local MainFrame = Instance.new("Frame", ScreenGui)
-        MainFrame.Size = UDim2.new(0, 380, 0, 280) -- تم تصغير الحجم ليصبح متناسق وصغير
-        MainFrame.Position = UDim2.new(0.5, -190, 0.5, -140) -- تمركز دقيق بناءً على الحجم الجديد
+        MainFrame.Size = UDim2.new(0, 380, 0, 280)
+        MainFrame.Position = UDim2.new(0.5, -190, 0.5, -140)
         MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
         MainFrame.BorderSizePixel = 0
         Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
@@ -284,7 +284,7 @@ function Logic.LoadEliteSupportModule(Window, OrionLib)
         Stroke.Thickness = 2
 
         local Avatar = Instance.new("ImageLabel", MainFrame)
-        Avatar.Size = UDim2.new(0, 65, 0, 65) -- ملاءمة حجم الصورة مع الإطار الصغير
+        Avatar.Size = UDim2.new(0, 65, 0, 65)
         Avatar.Position = UDim2.new(0, 15, 0, 15)
         Avatar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
         Instance.new("UICorner", Avatar).CornerRadius = UDim.new(1, 0)
@@ -304,7 +304,7 @@ function Logic.LoadEliteSupportModule(Window, OrionLib)
         Info.TextXAlignment = Enum.TextXAlignment.Left
 
         local ContentBox = Instance.new("Frame", MainFrame)
-        ContentBox.Size = UDim2.new(0, 350, 0, 120) -- ترتيب وتصغير صندوق المحتوى ليناسب الأبعاد الجديدة
+        ContentBox.Size = UDim2.new(0, 350, 0, 120)
         ContentBox.Position = UDim2.new(0, 15, 0, 95)
         ContentBox.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
         Instance.new("UICorner", ContentBox).CornerRadius = UDim.new(0, 8)
@@ -331,18 +331,19 @@ function Logic.LoadEliteSupportModule(Window, OrionLib)
 
         local Close = Instance.new("TextButton", MainFrame)
         Close.Size = UDim2.new(0, 110, 0, 32)
-        Close.Position = UDim2.new(0.5, -55, 1, -45) -- وضعية ممتازة ومثالية داخل الـ Frame
+        Close.Position = UDim2.new(0.5, -55, 1, -45)
         Close.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
         Close.Text = "إغلاق النافذة"
         Close.TextColor3 = Color3.white
         Close.Font = Enum.Font.GothamBold
         Close.TextSize = 13
-        Close.ZIndex = 10 -- رفع الطبقة لضمان استجابة اللمس والضغط دائماً وعمل الزر 100%
+        Close.ZIndex = 10 
         Instance.new("UICorner", Close).CornerRadius = UDim.new(0, 6)
         
-        -- ربط كامل ومضمون لجميع المنصات (موبايل + كمبيوتر)
-        Close.Activated:Connect(function() ScreenGui:Destroy() end)
-        Close.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
+        -- الحل الجذري للزر ليعمل فوراً عند اللمس/الضغط قبل تفكير النظام بالسحب
+        Close.MouseButton1Down:Connect(function() 
+            ScreenGui:Destroy() 
+        end)
     end
 
     -- // 3. قسم المطورين (لـ tatitoyo89 فقط)
@@ -394,6 +395,5 @@ function Logic.LoadEliteSupportModule(Window, OrionLib)
         DevTab:AddButton({Name = "⏳ قيد المراجعة", Callback = function() UpdateTicketStatus("⏳ قيد المراجعة") end})
     end
 end
-
 return Logic
 
