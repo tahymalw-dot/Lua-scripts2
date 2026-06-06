@@ -221,103 +221,109 @@ function Logic.SetupProProtection(Window, OrionLib)
 end
 
 
+-- نضع الجدول خارج الدالة ليكون مشتركاً بين اللاعب والمطور
+Logic.AllTickets = {} 
+
 function Logic.LoadEliteSupportModule(Window, OrionLib)
-    local HttpService = game:GetService("HttpService")
     local Players = game:GetService("Players")
     local LocalPlayer = Players.LocalPlayer
     
-    local WEBHOOK_URL = "https://discord.com/api/webhooks/1512829339459260466/OjW29ub0xYiCyts3MOoPX7QY-bv5RyMrtcBme9NQSUJMjjBxSJtS4pFvrWbMgPeRVQEt" 
-    local TicketLog = {}
-
-
+    -- دالة توليد ID عشوائي
     local function GenerateTicketID()
-        local chars = "ABCDEF0123456789"
-        local id = ""
-        for i = 1, 4 do id = id .. string.char(string.byte(chars, math.random(1, #chars))) end
-        return "AH-" .. id
+        return "AH-" .. math.random(1000, 9999)
     end
 
-
-    local SupportTab = Window:MakeTab({Name = "🎫 الدعم والطلبات", Icon = "rbxassetid://11429532655"})
-
-
-    SupportTab:AddSection({Name = "✨ أرسل طلبك للمطورين"})
+    -- // 1. قسم اللاعب (إرسال الطلبات)
+    local SupportTab = Window:MakeTab({Name = "🎫 الدعم", Icon = "rbxassetid://11429532655"})
+    SupportTab:AddSection({Name = "✨ إرسال اقتراح"})
+    
     local UserInput = ""
-    SupportTab:AddTextbox({Name = "اكتب اقتراحك أو مشكلتك...", Default = "", Callback = function(Value) UserInput = Value end})
-
+    SupportTab:AddTextbox({Name = "اكتب اقتراحك هنا...", Default = "", Callback = function(Value) UserInput = Value end})
 
     SupportTab:AddButton({
-        Name = "📡 إرسال الطلب",
+        Name = "📥 إرسال الطلب",
         Callback = function()
-            if #UserInput < 10 then
-                OrionLib:MakeNotification({Name = "❌ خطأ", Content = "يجب أن تكون الرسالة أطول من 10 أحرف.", Time = 3})
-                return
-            end
-
-
-            local TicketID = GenerateTicketID()
-            
-            -- أولاً: قم بإنشاء رابط الصورة بشكل ديناميكي (ضعه قبل الـ Payload)
-local avatarUrl = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. tostring(LocalPlayer.UserId) .. "&width=420&height=420&format=png"
-
-
--- ثانياً: عدل الـ Payload ليشمل الصورة
-local Payload = {
-    ["embeds"] = {{
-        ["title"] = "🎫 تذكرة دعم جديدة: " .. TicketID,
-        ["thumbnail"] = { -- هذا هو الجزء المسؤول عن وضع صورة البروفايل
-            ["url"] = avatarUrl
-        },
-        ["description"] = "📩 **الرسالة:**\n" .. UserInput,
-        ["color"] = 0x00A2FF,
-        ["fields"] = {
-            {["name"] = "👤 اللاعب", ["value"] = LocalPlayer.Name, ["inline"] = true},
-            {["name"] = "🆔 ID", ["value"] = tostring(LocalPlayer.UserId), ["inline"] = true},
-            {["name"] = "🕒 التوقيت", ["value"] = os.date("%X"), ["inline"] = true}
-        },
-        ["footer"] = {["text"] = "Arab Hub Support System"}
-    }}
-}
-
-
-            local Success = pcall(function()
-                return http_request({
-                    Url = WEBHOOK_URL, Method = "POST",
-                    Headers = {["Content-Type"] = "application/json"},
-                    Body = HttpService:JSONEncode(Payload)
-                })
-            end)
-
-
-            if Success then
-                table.insert(TicketLog, {ID = TicketID, Content = UserInput, Status = "⏳ قيد المراجعة"})
-                OrionLib:MakeNotification({Name = "✅ تم الإرسال!", Content = "رقم تذكرتك: " .. TicketID .. "\nسنقوم بالرد عليك قريباً.", Time = 5})
-            else
-                OrionLib:MakeNotification({Name = "❌ فشل", Content = "تعذر الاتصال بخادم الدعم.", Time = 3})
-            end
+            if #UserInput < 5 then return end
+            local ID = GenerateTicketID()
+            table.insert(Logic.AllTickets, {
+                ID = ID, User = LocalPlayer.Name, UserId = LocalPlayer.UserId, 
+                Content = UserInput, Status = "⏳ قيد المراجعة"
+            })
+            OrionLib:MakeNotification({Name = "تم الإرسال", Content = "رقم تذكرتك: " .. ID, Time = 3})
         end
     })
 
-
-    SupportTab:AddSection({Name = "📋 قائمة تذاكرك السابقة"})
+    SupportTab:AddSection({Name = "📊 حالتي"})
     SupportTab:AddButton({
-        Name = "🔍 عرض حالة التذاكر",
+        Name = "🔄 تحديث حالة طلباتي",
         Callback = function()
-            if #TicketLog == 0 then
-                OrionLib:MakeNotification({Name = "السجل فارغ", Content = "لم ترسل أي طلبات بعد.", Time = 3})
-            else
-                for _, ticket in pairs(TicketLog) do
-                    OrionLib:MakeNotification({
-                        Name = "تذكرة [" .. ticket.ID .. "]",
-                        Content = "الحالة: " .. ticket.Status .. "\nالمحتوى: " .. ticket.Content,
-                        Time = 8
-                    })
-                    task.wait(0.6)
+            local found = false
+            for _, t in pairs(Logic.AllTickets) do
+                if t.User == LocalPlayer.Name then
+                    OrionLib:MakeNotification({Name = "تذكرة " .. t.ID, Content = "الحالة: " .. t.Status, Time = 5})
+                    found = true
+                end
+            end
+            if not found then OrionLib:MakeNotification({Name = "لا يوجد", Content = "لم ترسل أي طلبات بعد.", Time = 3}) end
+        end
+    })
+
+    -- // 2. قسم المطورين (يظهر فقط لـ tatitoyo89)
+    if LocalPlayer.Name == "tatitoyo89" then
+        local DevTab = Window:MakeTab({Name = "👑 إدارة المطورين", Icon = "rbxassetid://7733964724"})
+        DevTab:AddSection({Name = "تحكم كامل"})
+        
+        local SelectedTicket = nil
+        local DevDropdown = DevTab:AddDropdown({Name = "اختر تذكرة للمراجعة", Options = {"لا توجد طلبات"}, Callback = function(v) SelectedTicket = v end})
+
+        DevTab:AddButton({
+            Name = "🔄 تحديث قائمة الطلبات",
+            Callback = function()
+                local opts = {}
+                for _, t in pairs(Logic.AllTickets) do table.insert(opts, t.ID .. " | " .. t.User) end
+                if #opts == 0 then opts = {"لا توجد طلبات"} end
+                DevDropdown:Refresh(opts, true)
+            end
+        })
+
+        DevTab:AddButton({
+            Name = "👁️ عرض التفاصيل",
+            Callback = function()
+                if not SelectedTicket then return end
+                for _, t in pairs(Logic.AllTickets) do
+                    if string.find(SelectedTicket, t.ID) then
+                        -- عرض المعلومات بأسلوب أسطوري
+                        local userId = t.UserId
+                        local thumbType = Enum.ThumbnailType.HeadShot
+                        local thumbSize = Enum.ThumbnailSize.Size420x420
+                        local content, isReady = Players:GetUserThumbnailAsync(userId, thumbType, thumbSize)
+                        
+                        OrionLib:MakeNotification({
+                            Name = "طلب من: " .. t.User,
+                            Content = "الـ ID: " .. t.UserId .. "\nالاقتراح: " .. t.Content .. "\nالحالة الحالية: " .. t.Status,
+                            Image = content,
+                            Time = 10
+                        })
+                    end
+                end
+            end
+        })
+
+        -- أزرار الحالة
+        local function SetStatus(newStatus)
+            if not SelectedTicket then return end
+            for _, t in pairs(Logic.AllTickets) do
+                if string.find(SelectedTicket, t.ID) then
+                    t.Status = newStatus
+                    OrionLib:MakeNotification({Name = "تم التعديل", Content = "أصبحت الحالة: " .. newStatus, Time = 3})
                 end
             end
         end
-    })
-end
 
+        DevTab:AddButton({Name = "✅ قبول", Callback = function() SetStatus("✅ مقبول") end})
+        DevTab:AddButton({Name = "❌ رفض", Callback = function() SetStatus("❌ مرفوض") end})
+        DevTab:AddButton({Name = "⏳ قيد المراجعة", Callback = function() SetStatus("⏳ قيد المراجعة") end})
+    end
+end
 
 return Logic
