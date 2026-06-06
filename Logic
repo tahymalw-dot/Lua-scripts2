@@ -260,19 +260,20 @@ function Logic.LoadEliteSupportModule(Window, OrionLib)
         end
     })
 
-    -- // 2. واجهة العرض الأسطورية (Popup GUI) - نسخة محسنة جمالياً فقط
+    -- // 2. واجهة العرض الأسطورية (Popup GUI) - تم تعديل الحجم وإصلاح زر الإغلاق هنا فقط!
     local function ShowTicketDetailGUI(t)
         local ScreenGui = Instance.new("ScreenGui", (gethui and gethui()) or game.CoreGui)
         ScreenGui.Name = "EliteTicketDetail"
         
         local MainFrame = Instance.new("Frame", ScreenGui)
-        MainFrame.Size = UDim2.new(0, 500, 0, 400)
-        MainFrame.Position = UDim2.new(0.5, -250, 0.5, -200)
-        MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25) -- لون أعمق
+        MainFrame.Size = UDim2.new(0, 400, 0, 320) -- تم تصغير الحجم ليكون متوسط وممتاز
+        MainFrame.Position = UDim2.new(0.5, -200, 0.5, -160) -- تم تعديل التمركز ليتناسب مع الحجم الجديد
+        MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
         MainFrame.BorderSizePixel = 0
         Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 15)
+        MainFrame.Active = true
+        MainFrame.Draggable = true -- جعلت النافذة قابلة للسحب لتكون مريحة أكثر
         
-        -- إضافة تدرج لوني خفيف للجمال
         local Gradient = Instance.new("UIGradient", MainFrame)
         Gradient.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 35, 45)), ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 25))})
         Gradient.Rotation = 45
@@ -282,7 +283,7 @@ function Logic.LoadEliteSupportModule(Window, OrionLib)
         Stroke.Thickness = 2
 
         local Avatar = Instance.new("ImageLabel", MainFrame)
-        Avatar.Size = UDim2.new(0, 90, 0, 90)
+        Avatar.Size = UDim2.new(0, 75, 0, 75) -- تصغير الصورة قليلاً لتناسب الحجم
         Avatar.Position = UDim2.new(0, 20, 0, 20)
         Avatar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
         Instance.new("UICorner", Avatar).CornerRadius = UDim.new(1, 0)
@@ -292,50 +293,54 @@ function Logic.LoadEliteSupportModule(Window, OrionLib)
         end)
 
         local Info = Instance.new("TextLabel", MainFrame)
-        Info.Size = UDim2.new(0, 350, 0, 40)
-        Info.Position = UDim2.new(0, 120, 0, 25)
+        Info.Size = UDim2.new(0, 280, 0, 40)
+        Info.Position = UDim2.new(0, 105, 0, 20)
         Info.Text = "اللاعب: " .. t.User .. "\nID: " .. t.UserId
         Info.TextColor3 = Color3.fromRGB(222, 255, 154)
         Info.Font = Enum.Font.GothamBold
-        Info.TextSize = 16
+        Info.TextSize = 14
         Info.BackgroundTransparency = 1
         Info.TextXAlignment = Enum.TextXAlignment.Left
 
         local ContentBox = Instance.new("Frame", MainFrame)
-        ContentBox.Size = UDim2.new(0, 460, 0, 190)
-        ContentBox.Position = UDim2.new(0, 20, 0, 130)
+        ContentBox.Size = UDim2.new(0, 360, 0, 140) -- تصغير صندوق النص ليتناسب مع الإطار
+        ContentBox.Position = UDim2.new(0, 20, 0, 110)
         ContentBox.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
         Instance.new("UICorner", ContentBox).CornerRadius = UDim.new(0, 10)
         
         local TitleText = Instance.new("TextLabel", ContentBox)
-        TitleText.Size = UDim2.new(1, 0, 0, 30)
+        TitleText.Size = UDim2.new(1, 0, 0, 25)
         TitleText.Text = "  نص الاقتراح:"
         TitleText.TextColor3 = Color3.fromRGB(150, 150, 150)
         TitleText.Font = Enum.Font.GothamBold
-        TitleText.TextSize = 14
+        TitleText.TextSize = 13
         TitleText.TextXAlignment = Enum.TextXAlignment.Left
         TitleText.BackgroundTransparency = 1
 
         local BodyText = Instance.new("TextLabel", ContentBox)
-        BodyText.Size = UDim2.new(1, -20, 1, -30)
-        BodyText.Position = UDim2.new(0, 10, 0, 30)
+        BodyText.Size = UDim2.new(1, -20, 1, -25)
+        BodyText.Position = UDim2.new(0, 10, 0, 25)
         BodyText.Text = t.Content
         BodyText.TextColor3 = Color3.fromRGB(255, 255, 255)
         BodyText.Font = Enum.Font.Gotham
-        BodyText.TextSize = 16
+        BodyText.TextSize = 14
         BodyText.TextWrapped = true
         BodyText.TextYAlignment = Enum.TextYAlignment.Top
         BodyText.BackgroundTransparency = 1
 
         local Close = Instance.new("TextButton", MainFrame)
-        Close.Size = UDim2.new(0, 120, 0, 40)
-        Close.Position = UDim2.new(0.5, -60, 1, -55)
+        Close.Size = UDim2.new(0, 120, 0, 35)
+        Close.Position = UDim2.new(0.5, -60, 1, -45) -- تمركز ممتاز في أسفل النافذة
         Close.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
         Close.Text = "إغلاق النافذة"
         Close.TextColor3 = Color3.white
         Close.Font = Enum.Font.GothamBold
+        Close.ZIndex = 10 -- رفعنا الـ ZIndex عشان ما يعلق الزر
         Instance.new("UICorner", Close).CornerRadius = UDim.new(0, 8)
+        
+        -- إصلاح مشكلة زر الإغلاق للموبايل والكمبيوتر
         Close.Activated:Connect(function() ScreenGui:Destroy() end)
+        Close.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
     end
 
     -- // 3. قسم المطورين (لـ tatitoyo89 فقط)
@@ -387,7 +392,4 @@ function Logic.LoadEliteSupportModule(Window, OrionLib)
         DevTab:AddButton({Name = "⏳ قيد المراجعة", Callback = function() UpdateTicketStatus("⏳ قيد المراجعة") end})
     end
 end
-        
-
 return Logic
-
