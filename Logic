@@ -222,106 +222,75 @@ end
 
 
 -- تعريف الجدول العام لضمان استمرارية البيانات داخل السيرفر
-Logic.Tickets = Logic.Tickets or {}
-
-function Logic.LoadEliteSupportModule(Window, OrionLib)
+function Logic.LoadChatSystem(Window, OrionLib)
     local Players = game:GetService("Players")
-    local TweenService = game:GetService("TweenService")
-    local LocalPlayer = Players.LocalPlayer
-
-    -- // دالة الواجهة الأسطورية (المطورين فقط)
-    local function CreateLegendaryGUI(t)
-        local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
-        local Frame = Instance.new("Frame", ScreenGui)
-        Frame.Size = UDim2.new(0, 450, 0, 300)
-        Frame.Position = UDim2.new(0.5, -225, 0.5, -150)
-        Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-        Frame.BackgroundTransparency = 0.1
-        Frame.ClipsDescendants = true
-        Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 15)
-        
-        -- إضافة تأثير إطار نيون
-        local Stroke = Instance.new("UIStroke", Frame)
-        Stroke.Color = Color3.fromRGB(0, 255, 200)
-        Stroke.Thickness = 3
-
-        -- عرض الصورة والبيانات
-        local UserImage = Instance.new("ImageLabel", Frame)
-        UserImage.Size = UDim2.new(0, 100, 0, 100)
-        UserImage.Position = UDim2.new(0, 20, 0, 20)
-        UserImage.Image = Players:GetUserThumbnailAsync(t.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
-        Instance.new("UICorner", UserImage).CornerRadius = UDim.new(1, 0)
-
-        local NameText = Instance.new("TextLabel", Frame)
-        NameText.Size = UDim2.new(0, 300, 0, 50)
-        NameText.Position = UDim2.new(0, 130, 0, 20)
-        NameText.Text = t.User .. " | " .. t.ID
-        NameText.TextColor3 = Color3.white
-        NameText.Font = Enum.Font.GothamBold
-        NameText.BackgroundTransparency = 1
-
-        local ContentText = Instance.new("TextLabel", Frame)
-        ContentText.Size = UDim2.new(0, 410, 0, 100)
-        ContentText.Position = UDim2.new(0, 20, 0, 130)
-        ContentText.Text = t.Content
-        ContentText.TextColor3 = Color3.fromRGB(200, 200, 200)
-        ContentText.TextWrapped = true
-        ContentText.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-        Instance.new("UICorner", ContentText)
-
-        local CloseBtn = Instance.new("TextButton", Frame)
-        CloseBtn.Text = "إغلاق النافذة"
-        CloseBtn.Size = UDim2.new(0, 100, 0, 40)
-        CloseBtn.Position = UDim2.new(0.5, -50, 0.85, 0)
-        CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-        CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
-    end
-
-    -- // التبويب
-    local SupportTab = Window:MakeTab({Name = "🎫 Arab Hub Support", Icon = "rbxassetid://11429532655"})
-
-    -- قسم إرسال الطلب (للجميع)
-    SupportTab:AddSection({Name = "✨ إرسال اقتراح"})
-    local InputText = ""
-    SupportTab:AddTextbox({Name = "اكتب اقتراحك هنا...", Default = "", Callback = function(v) InputText = v end})
-    SupportTab:AddButton({
-        Name = "🚀 إرسال الطلب للمطورين",
-        Callback = function()
-            if #InputText < 5 then return end
-            local ID = "AH-" .. math.random(1000, 9999)
-            table.insert(Logic.Tickets, {ID = ID, User = LocalPlayer.Name, UserId = LocalPlayer.UserId, Content = InputText, Status = "⏳ قيد المراجعة"})
-            OrionLib:MakeNotification({Name = "تم الإرسال!", Content = "رقم التذكرة: " .. ID, Time = 3})
-        end
+    local ChatTab = Window:MakeTab({
+        Name = "💬 Script Chat", 
+        Icon = "rbxassetid://3926305904"
     })
 
-    -- قسم المطور (يظهر فقط لـ tatitoyo89)
-    if LocalPlayer.Name == "tatitoyo89" then
-        SupportTab:AddSection({Name = "👑 لوحة تحكم المطور"})
+    -- // 1. إنشاء واجهة الشات الاحترافية
+    local ChatSection = ChatTab:AddSection({Name = "📢 المحادثة العامة (Script Monitor)"})
+    
+    -- حاوية الشات (الـ Scrolling Frame)
+    local ChatFrame = Instance.new("ScrollingFrame")
+    ChatFrame.Size = UDim2.new(1, 0, 0, 250)
+    ChatFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+    ChatFrame.BorderSizePixel = 0
+    ChatFrame.ScrollBarThickness = 6
+    ChatFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+    Instance.new("UICorner", ChatFrame).CornerRadius = UDim.new(0, 8)
+    
+    -- إضافة الـ UIListLayout لترتيب الرسائل تلقائياً
+    local Layout = Instance.new("UIListLayout", ChatFrame)
+    Layout.Padding = UDim.new(0, 5)
+    Layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+    -- دالة إضافة الرسالة (تأثير أسطوري)
+    local function AddMessage(username, message)
+        local Msg = Instance.new("TextLabel")
+        Msg.Size = UDim2.new(1, -10, 0, 25)
+        Msg.BackgroundTransparency = 1
+        Msg.Text = "  [" .. username .. "]: " .. message
+        Msg.TextColor3 = Color3.fromRGB(200, 200, 200)
+        Msg.Font = Enum.Font.Gotham
+        Msg.TextSize = 14
+        Msg.TextXAlignment = Enum.TextXAlignment.Left
+        Msg.Parent = ChatFrame
         
-        local SelectedTicket = nil
-        local Dropdown = SupportTab:AddDropdown({Name = "اختر تذكرة للتحكم", Options = {"اضغط تحديث أولاً"}, Callback = function(v) 
-            SelectedTicket = string.match(v, "AH%-%d+") 
-        end})
-
-        SupportTab:AddButton({Name = "🔄 تحديث القائمة", Callback = function()
-            local list = {}
-            for _, t in pairs(Logic.Tickets) do table.insert(list, t.ID .. " | " .. t.User) end
-            if #list == 0 then list = {"لا توجد طلبات"} end
-            Dropdown:Refresh(list, true)
-        end})
-
-        SupportTab:AddButton({Name = "👁️ عرض التفاصيل الأسطورية", Callback = function()
-            if not SelectedTicket then return end
-            for _, t in pairs(Logic.Tickets) do
-                if t.ID == SelectedTicket then CreateLegendaryGUI(t) end
-            end
-        end})
-
-        SupportTab:AddButton({Name = "✅ قبول الطلب", Callback = function()
-            for _, t in pairs(Logic.Tickets) do if t.ID == SelectedTicket then t.Status = "✅ مقبول" end end
-            OrionLib:MakeNotification({Name = "تم", Content = "تم قبول التذكرة", Time = 3})
-        end})
+        -- تعديل حجم الـ Canvas ليتناسب مع الرسائل
+        ChatFrame.CanvasSize = UDim2.new(0, 0, 0, Layout.AbsoluteContentSize.Y + 20)
+        ChatFrame.CanvasPosition = Vector2.new(0, ChatFrame.CanvasSize.Y.Offset)
     end
+
+    -- دمج الـ UI داخل Orion
+    ChatTab:AddElement(ChatFrame)
+
+    -- // 2. ربط الشات (الذكاء البرمجي)
+    -- هذا النظام يلتقط أي رسالة تُكتب في السيرفر ويضعها في واجهتك
+    for _, player in pairs(Players:GetPlayers()) do
+        player.Chatted:Connect(function(msg)
+            AddMessage(player.Name, msg)
+        end)
+    end
+    
+    Players.PlayerAdded:Connect(function(player)
+        player.Chatted:Connect(function(msg)
+            AddMessage(player.Name, msg)
+        end)
+    end)
+
+    -- // 3. تحكم المطور
+    ChatTab:AddSection({Name = "🛠️ لوحة التحكم"})
+    ChatTab:AddButton({
+        Name = "🧹 مسح سجل الشات",
+        Callback = function()
+            for _, child in pairs(ChatFrame:GetChildren()) do
+                if child:IsA("TextLabel") then child:Destroy() end
+            end
+            OrionLib:MakeNotification({Name = "نظام الشات", Content = "تم تنظيف السجل بنجاح.", Time = 2})
+        end
+    })
 end
 
 
