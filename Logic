@@ -23,175 +23,295 @@ function Logic.StartProSpam(commandsList, enabledTable, stackCount)
 end
 
 function Logic.ShowRealisticHDAdminAlert(devType, username, discordInfo, neonColor)
-    pcall(function()
-        local AlertGui = Instance.new("ScreenGui")
-        AlertGui.Name = "RealHDAdminAlertClone"
-        AlertGui.IgnoreGuiInset = true
-        AlertGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
-        local safeGui = (gethui and gethui()) or game:GetService("CoreGui") or game.Players.LocalPlayer:WaitForChild("PlayerGui")
-        AlertGui.Parent = safeGui
-        
-        local Banner = Instance.new("Frame", AlertGui)
-        Banner.Name = "Banner"
-        Banner.Size = UDim2.new(0.6, 0, 0, 140)
-        Banner.Position = UDim2.new(0.2, 0, -0.5, 0)
-        Banner.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-        Banner.BackgroundTransparency = 0.15
-        Banner.BorderSizePixel = 0
-        
-        Instance.new("UICorner", Banner).CornerRadius = UDim.new(0, 8)
-        local UIStroke = Instance.new("UIStroke", Banner)
-        UIStroke.Color = neonColor
-        UIStroke.Thickness = 2
-        
-        local HeaderBar = Instance.new("Frame", Banner)
-        HeaderBar.Size = UDim2.new(1, 0, 0, 30)
-        HeaderBar.BackgroundColor3 = neonColor
-        HeaderBar.BackgroundTransparency = 0.3
-        Instance.new("UICorner", HeaderBar).CornerRadius = UDim.new(0, 8)
-        
-        local HeaderText = Instance.new("TextLabel", HeaderBar)
-        HeaderText.Size = UDim2.new(1, -20, 1, 0)
-        HeaderText.Position = UDim2.new(0, 10, 0, 0)
-        HeaderText.BackgroundTransparency = 1
-        HeaderText.Text = "📢 GLOBAL ANNOUNCEMENT"
-        HeaderText.TextColor3 = Color3.fromRGB(255, 255, 255)
-        HeaderText.Font = Enum.Font.GothamBlack
-        HeaderText.TextSize = 16
-        HeaderText.TextXAlignment = Enum.TextXAlignment.Left
-        
-        local Avatar = Instance.new("ImageLabel", Banner)
-        Avatar.Size = UDim2.new(0, 90, 0, 90)
-        Avatar.Position = UDim2.new(0, 15, 0, 40)
-        Avatar.BackgroundTransparency = 1
-        Instance.new("UICorner", Avatar).CornerRadius = UDim.new(1, 0)
-        
-        task.spawn(function()
-            pcall(function()
-                local userId = game.Players:GetUserIdFromNameAsync(username)
-                Avatar.Image = game.Players:GetUserThumbnailAsync(userId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
-            end)
+    local AlertGui = Instance.new("ScreenGui")
+    AlertGui.Name = "RealHDAdminAlertClone"
+    AlertGui.IgnoreGuiInset = true
+    AlertGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
+    local safeGui = (gethui and gethui()) or game:GetService("CoreGui") or game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    AlertGui.Parent = safeGui
+    
+    local Banner = Instance.new("Frame", AlertGui)
+    Banner.Name = "Banner"
+    Banner.Size = UDim2.new(0.6, 0, 0, 140)
+    Banner.Position = UDim2.new(0.2, 0, -0.5, 0)
+    Banner.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    Banner.BackgroundTransparency = 0.15
+    Banner.BorderSizePixel = 0
+    
+    local UICorner = Instance.new("UICorner", Banner)
+    UICorner.CornerRadius = UDim.new(0, 8)
+    
+    local UIStroke = Instance.new("UIStroke", Banner)
+    UIStroke.Color = neonColor
+    UIStroke.Thickness = 2
+    
+    local HeaderBar = Instance.new("Frame", Banner)
+    HeaderBar.Size = UDim2.new(1, 0, 0, 30)
+    HeaderBar.BackgroundColor3 = neonColor
+    HeaderBar.BackgroundTransparency = 0.3
+    Instance.new("UICorner", HeaderBar).CornerRadius = UDim.new(0, 8)
+    
+    local HeaderFix = Instance.new("Frame", HeaderBar)
+    HeaderFix.Size = UDim2.new(1, 0, 0, 10)
+    HeaderFix.Position = UDim2.new(0, 0, 1, -10)
+    HeaderFix.BackgroundColor3 = neonColor
+    HeaderFix.BackgroundTransparency = 0.3
+    HeaderFix.BorderSizePixel = 0
+    
+    local HeaderText = Instance.new("TextLabel", HeaderBar)
+    HeaderText.Size = UDim2.new(1, -20, 1, 0)
+    HeaderText.Position = UDim2.new(0, 10, 0, 0)
+    HeaderText.BackgroundTransparency = 1
+    HeaderText.Text = "📢 GLOBAL ANNOUNCEMENT"
+    HeaderText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    HeaderText.Font = Enum.Font.GothamBlack
+    HeaderText.TextSize = 16
+    HeaderText.TextXAlignment = Enum.TextXAlignment.Left
+    
+    local Avatar = Instance.new("ImageLabel", Banner)
+    Avatar.Size = UDim2.new(0, 90, 0, 90)
+    Avatar.Position = UDim2.new(0, 15, 0, 40)
+    Avatar.BackgroundTransparency = 1
+    Instance.new("UICorner", Avatar).CornerRadius = UDim.new(1, 0)
+    
+    task.spawn(function()
+        pcall(function()
+            local userId = game.Players:GetUserIdFromNameAsync(username)
+            Avatar.Image = game.Players:GetUserThumbnailAsync(userId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
         end)
-        
-        local Title = Instance.new("TextLabel", Banner)
-        Title.Size = UDim2.new(1, -120, 0, 25)
-        Title.Position = UDim2.new(0, 115, 0, 40)
-        Title.BackgroundTransparency = 1
-        Title.Text = devType .. " | " .. username
-        Title.TextColor3 = neonColor
-        Title.Font = Enum.Font.GothamBlack
-        Title.TextSize = 20
-        Title.TextXAlignment = Enum.TextXAlignment.Left
-        
-        local Desc = Instance.new("TextLabel", Banner)
-        Desc.Size = UDim2.new(1, -120, 0, 60)
-        Desc.Position = UDim2.new(0, 115, 0, 70)
-        Desc.BackgroundTransparency = 1
-        Desc.Text = "الديسكورد: " .. discordInfo .. "\nالحالة: حساب موثق رسمياً ✅\nالمهام: إدارة، برمجة، وحماية السكربت."
-        Desc.TextColor3 = Color3.fromRGB(220, 220, 220)
-        Desc.Font = Enum.Font.GothamBold
-        Desc.TextSize = 14
-        Desc.TextWrapped = true
-        Desc.TextXAlignment = Enum.TextXAlignment.Left
-        Desc.TextYAlignment = Enum.TextYAlignment.Top
-        
-        local CloseBtn = Instance.new("TextButton", HeaderBar)
-        CloseBtn.Size = UDim2.new(0, 30, 0, 30)
-        CloseBtn.Position = UDim2.new(1, -30, 0, 0)
-        CloseBtn.BackgroundTransparency = 1
-        CloseBtn.Text = "X"
-        CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        CloseBtn.Font = Enum.Font.GothamBlack
-        CloseBtn.TextSize = 18
-        
-        CloseBtn.MouseButton1Click:Connect(function()
-            local ts = game:GetService("TweenService")
-            ts:Create(Banner, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Position = UDim2.new(0.2, 0, -0.5, 0)}):Play()
-            task.wait(0.5)
-            AlertGui:Destroy()
-        end)
-        
-        game:GetService("TweenService"):Create(Banner, TweenInfo.new(0.6, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out), {Position = UDim2.new(0.2, 0, 0.05, 0)}):Play()
     end)
+    
+    local Title = Instance.new("TextLabel", Banner)
+    Title.Size = UDim2.new(1, -120, 0, 25)
+    Title.Position = UDim2.new(0, 115, 0, 40)
+    Title.BackgroundTransparency = 1
+    Title.Text = devType .. " | " .. username
+    Title.TextColor3 = neonColor
+    Title.Font = Enum.Font.GothamBlack
+    Title.TextSize = 20
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+    
+    local Desc = Instance.new("TextLabel", Banner)
+    Desc.Size = UDim2.new(1, -120, 0, 60)
+    Desc.Position = UDim2.new(0, 115, 0, 70)
+    Desc.BackgroundTransparency = 1
+    Desc.Text = "الديسكورد: " .. discordInfo .. "\nالحالة: حساب موثق رسمياً ✅\nالمهام: إدارة، برمجة، وحماية السكربت."
+    Desc.TextColor3 = Color3.fromRGB(220, 220, 220)
+    Desc.Font = Enum.Font.GothamBold
+    Desc.TextSize = 14
+    Desc.TextWrapped = true
+    Desc.TextXAlignment = Enum.TextXAlignment.Left
+    Desc.TextYAlignment = Enum.TextYAlignment.Top
+    
+    local CloseBtn = Instance.new("TextButton", HeaderBar)
+    CloseBtn.Size = UDim2.new(0, 30, 0, 30)
+    CloseBtn.Position = UDim2.new(1, -30, 0, 0)
+    CloseBtn.BackgroundTransparency = 1
+    CloseBtn.Text = "X"
+    CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    CloseBtn.Font = Enum.Font.GothamBlack
+    CloseBtn.TextSize = 18
+    
+    CloseBtn.MouseButton1Click:Connect(function()
+        local ts = game:GetService("TweenService")
+        local outTween = ts:Create(Banner, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Position = UDim2.new(0.2, 0, -0.5, 0)})
+        outTween:Play()
+        task.wait(0.5)
+        AlertGui:Destroy()
+    end)
+    
+    local ts = game:GetService("TweenService")
+    local inTween = ts:Create(Banner, TweenInfo.new(0.6, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out), {Position = UDim2.new(0.2, 0, 0.05, 0)})
+    inTween:Play()
 end
 
 function Logic.SetupProProtection(Window, OrionLib)
-    pcall(function()
-        local ProtectTab = Window:MakeTab({Name = "🛡️ الحماية", Icon = "rbxassetid://11429532655"})
-        ProtectTab:AddSection({Name = "✨ حالة نظام الدفاع"})
-        local StatusLabel = ProtectTab:AddLabel("الحالة: النظام في وضع الاستعداد 🟢")
-        local States = {Logs = false, Clogs = false, NV = false}
+    -- حماية لمنع الخطأ إذا تم استدعاء الدالة قبل تحميل النافذة
+    if not Window or not OrionLib then return end
+    
+    local ProtectTab = Window:MakeTab({
+        Name = "🛡️ الحماية", 
+        Icon = "rbxassetid://11429532655"
+    })
 
-        local function Notify(Title, Content)
-            OrionLib:MakeNotification({Name = Title, Content = Content, Image = "rbxassetid://4483345998", Time = 3})
+    ProtectTab:AddSection({Name = "✨ حالة نظام الدفاع"})
+    local StatusLabel = ProtectTab:AddLabel("الحالة: النظام في وضع الاستعداد 🟢")
+
+    local States = {Logs = false, Clogs = false, NV = false}
+
+    local function Notify(Title, Content)
+        OrionLib:MakeNotification({
+            Name = Title,
+            Content = Content,
+            Image = "rbxassetid://4483345998",
+            Time = 3
+        })
+    end
+
+    local function Monitor()
+        local PlayerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+        local function Process(Interface)
+            if Interface.Name ~= "HDAdminInterface" then return end
+            Interface.ChildAdded:Connect(function(child)
+                if (States.Logs and child.Name == "CommandMenucommandLogs") or 
+                   (States.Clogs and child.Name == "CommandMenuchatLogs") then
+                    child:Destroy()
+                    Notify("🛡️ اعتراض هجوم", "تم رصد وإتلاف الهجومات بنجاح.")
+                end
+            end)
         end
+        PlayerGui.ChildAdded:Connect(function(child) if child.Name == "HDAdminInterface" then Process(child) end end)
+        if PlayerGui:FindFirstChild("HDAdminInterface") then Process(PlayerGui.HDAdminInterface) end
+    end
+    task.spawn(Monitor)
 
-        local function Monitor()
-            local PlayerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-            local function Process(Interface)
-                if Interface.Name ~= "HDAdminInterface" then return end
-                Interface.ChildAdded:Connect(function(child)
-                    if (States.Logs and child.Name == "CommandMenucommandLogs") or (States.Clogs and child.Name == "CommandMenuchatLogs") then
-                        child:Destroy()
-                        Notify("🛡️ اعتراض هجوم", "تم رصد وإتلاف الهجومات بنجاح.")
-                    end
-                end)
-            end
-            PlayerGui.ChildAdded:Connect(function(child) if child.Name == "HDAdminInterface" then Process(child) end end)
-            if PlayerGui:FindFirstChild("HDAdminInterface") then Process(PlayerGui.HDAdminInterface) end
+    ProtectTab:AddSection({Name = "⚙️ إعدادات التحكم"})
+    
+    ProtectTab:AddToggle({
+        Name = "🛡 تفعيل حماية Logs", 
+        Default = false, 
+        Callback = function(V) 
+            States.Logs = V
+            StatusLabel:Set(V and "الحالة: الحماية مفعلة ✅" or "الحالة: النظام في وضع الاستعداد 🟢")
+            Notify("نظام الحماية", V and "تم تشغيل حماية الأوامر!" or "تم إيقاف حماية الأوامر.")
         end
-        task.spawn(Monitor)
+    })
 
-        ProtectTab:AddSection({Name = "⚙️ إعدادات التحكم"})
-        ProtectTab:AddToggle({Name = "🛡 تفعيل حماية Logs", Default = false, Callback = function(V) States.Logs = V; StatusLabel:Set(V and "الحالة: الحماية مفعلة ✅" or "الحالة: النظام في وضع الاستعداد 🟢") end})
-        ProtectTab:AddToggle({Name = "🛡 تفعيل حماية CLogs", Default = false, Callback = function(V) States.Clogs = V end})
-        ProtectTab:AddToggle({Name = "👻 منع الاختفاء (Anti-NV)", Default = false, Callback = function(V) States.NV = V; if V then task.spawn(function() while States.NV do if game.Players.LocalPlayer.Character then for _,p in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do if p:IsA("BasePart") then p.Transparency = 0 end end end task.wait(0.3) end end) end end})
-        
-        ProtectTab:AddSection({Name = "🛠️ أدوات الطوارئ"})
-        ProtectTab:AddButton({Name = "🧹 مسح السجلات فوراً", Callback = function()
+    ProtectTab:AddToggle({
+        Name = "🛡 تفعيل حماية CLogs", 
+        Default = false, 
+        Callback = function(V) 
+            States.Clogs = V
+            Notify("نظام الحماية", V and "تم تشغيل حماية الشات!" or "تم إيقاف حماية الشات.")
+        end
+    })
+
+    ProtectTab:AddToggle({
+        Name = "👻 منع الاختفاء (Anti-NV)", 
+        Default = false, 
+        Callback = function(V) 
+            States.NV = V
+            Notify("نظام الحماية", V and "تم تفعيل وضع الظهور الدائم!" or "تم إيقاف وضع الظهور.")
+            if V then task.spawn(function() while States.NV do if game.Players.LocalPlayer.Character then for _,p in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do if p:IsA("BasePart") then p.Transparency = 0 end end end task.wait(0.3) end end) end
+        end
+    })
+
+    ProtectTab:AddSection({Name = "🛠️ أدوات الطوارئ"})
+    ProtectTab:AddButton({
+        Name = "🧹 مسح السجلات فوراً (Manual Clean)", 
+        Callback = function()
             local Interface = game.Players.LocalPlayer.PlayerGui:FindFirstChild("HDAdminInterface")
             if Interface then
                 if Interface:FindFirstChild("CommandMenucommandLogs") then Interface.CommandMenucommandLogs:Destroy() end
                 if Interface:FindFirstChild("CommandMenuchatLogs") then Interface.CommandMenuchatLogs:Destroy() end
-                Notify("التنظيف", "تم تنظيف كافة السجلات يدوياً!")
+                Notify("التنظيف", "تم تنظيف كافة السجلات يدوياً بنجاح!")
+            else
+                Notify("خطأ", "لم يتم العثور على واجهة الأدمن حالياً.")
             end
-        end})
-    end)
+        end
+    })
 end
 
 Logic.AllTickets = {} 
 
 function Logic.LoadEliteSupportModule(Window, OrionLib)
-    pcall(function()
-        local Players = game:GetService("Players")
-        local LocalPlayer = Players.LocalPlayer
-        local SupportTab = Window:MakeTab({Name = "🎫 الدعم", Icon = "rbxassetid://11429532655"})
-        
-        SupportTab:AddSection({Name = "✨ إرسال اقتراح"})
-        local UserInput = ""
-        SupportTab:AddTextbox({Name = "اكتب اقتراحك هنا...", Default = "", Callback = function(Value) UserInput = Value end})
-        SupportTab:AddButton({Name = "📥 إرسال الطلب", Callback = function()
+    -- حماية لمنع الخطأ إذا تم استدعاء الدالة قبل تحميل النافذة
+    if not Window or not OrionLib then return end
+    
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer
+    
+    local function GenerateTicketID()
+        return "AH-" .. math.random(1000, 9999)
+    end
+
+    local SupportTab = Window:MakeTab({Name = "🎫 الدعم", Icon = "rbxassetid://11429532655"})
+    SupportTab:AddSection({Name = "✨ إرسال اقتراح"})
+    
+    local UserInput = ""
+    SupportTab:AddTextbox({Name = "اكتب اقتراحك هنا...", Default = "", Callback = function(Value) UserInput = Value end})
+
+    SupportTab:AddButton({
+        Name = "📥 إرسال الطلب",
+        Callback = function()
             if #UserInput < 5 then return end
-            local ID = "AH-" .. math.random(1000, 9999)
-            table.insert(Logic.AllTickets, {ID = ID, User = LocalPlayer.Name, UserId = LocalPlayer.UserId, Content = UserInput, Status = "⏳ قيد المراجعة"})
+            local ID = GenerateTicketID()
+            table.insert(Logic.AllTickets, {
+                ID = ID, User = LocalPlayer.Name, UserId = LocalPlayer.UserId, 
+                Content = UserInput, Status = "⏳ قيد المراجعة"
+            })
             OrionLib:MakeNotification({Name = "تم الإرسال", Content = "رقم تذكرتك: " .. ID, Time = 3})
-        end})
+        end
+    })
 
-        if LocalPlayer.Name == "tatitoyo89" then
-            local DevTab = Window:MakeTab({Name = "👑 إدارة المطورين", Icon = "rbxassetid://7733964724"})
-            local SelectedTicket = nil
-            local DevDropdown = DevTab:AddDropdown({Name = "اختر تذكرة", Options = {"تحديث القائمة..."}, Callback = function(v) SelectedTicket = v end})
+    SupportTab:AddSection({Name = "📊 حالتي"})
+    SupportTab:AddButton({
+        Name = "🔄 تحديث حالة طلباتي",
+        Callback = function()
+            local found = false
+            for _, t in pairs(Logic.AllTickets) do
+                if t.User == LocalPlayer.Name then
+                    OrionLib:MakeNotification({Name = "تذكرة " .. t.ID, Content = "الحالة: " .. t.Status, Time = 5})
+                    found = true
+                end
+            end
+            if not found then OrionLib:MakeNotification({Name = "لا يوجد", Content = "لم ترسل أي طلبات بعد.", Time = 3}) end
+        end
+    })
 
-            DevTab:AddButton({Name = "🔄 تحديث", Callback = function()
+    if LocalPlayer.Name == "tatitoyo89" then
+        local DevTab = Window:MakeTab({Name = "👑 إدارة المطورين", Icon = "rbxassetid://7733964724"})
+        DevTab:AddSection({Name = "تحكم كامل"})
+        
+        local SelectedTicket = nil
+        local DevDropdown = DevTab:AddDropdown({Name = "اختر تذكرة للمراجعة", Options = {"لا توجد طلبات"}, Callback = function(v) SelectedTicket = v end})
+
+        DevTab:AddButton({
+            Name = "🔄 تحديث قائمة الطلبات",
+            Callback = function()
                 local opts = {}
                 for _, t in pairs(Logic.AllTickets) do table.insert(opts, t.ID .. " | " .. t.User) end
+                if #opts == 0 then opts = {"لا توجد طلبات"} end
                 DevDropdown:Refresh(opts, true)
-            end})
+            end
+        })
 
-            DevTab:AddButton({Name = "✅ قبول", Callback = function() if SelectedTicket then for _, t in pairs(Logic.AllTickets) do if string.find(SelectedTicket, t.ID) then t.Status = "✅ مقبول" end end end end})
-            DevTab:AddButton({Name = "❌ رفض", Callback = function() if SelectedTicket then for _, t in pairs(Logic.AllTickets) do if string.find(SelectedTicket, t.ID) then t.Status = "❌ مرفوض" end end end end})
+        DevTab:AddButton({
+            Name = "👁️ عرض التفاصيل",
+            Callback = function()
+                if not SelectedTicket then return end
+                for _, t in pairs(Logic.AllTickets) do
+                    if string.find(SelectedTicket, t.ID) then
+                        local userId = t.UserId
+                        local thumbType = Enum.ThumbnailType.HeadShot
+                        local thumbSize = Enum.ThumbnailSize.Size420x420
+                        local content, isReady = Players:GetUserThumbnailAsync(userId, thumbType, thumbSize)
+                        
+                        OrionLib:MakeNotification({
+                            Name = "طلب من: " .. t.User,
+                            Content = "الـ ID: " .. t.UserId .. "\nالاقتراح: " .. t.Content .. "\nالحالة الحالية: " .. t.Status,
+                            Image = content,
+                            Time = 10
+                        })
+                    end
+                end
+            end
+        })
+
+        local function SetStatus(newStatus)
+            if not SelectedTicket then return end
+            for _, t in pairs(Logic.AllTickets) do
+                if string.find(SelectedTicket, t.ID) then
+                    t.Status = newStatus
+                    OrionLib:MakeNotification({Name = "تم التعديل", Content = "أصبحت الحالة: " .. newStatus, Time = 3})
+                end
+            end
         end
-    end)
+
+        DevTab:AddButton({Name = "✅ قبول", Callback = function() SetStatus("✅ مقبول") end})
+        DevTab:AddButton({Name = "❌ رفض", Callback = function() SetStatus("❌ مرفوض") end})
+        DevTab:AddButton({Name = "⏳ قيد المراجعة", Callback = function() SetStatus("⏳ قيد المراجعة") end})
+    end
 end
 
 return Logic
