@@ -219,168 +219,174 @@ function Logic.SetupProProtection(Window, OrionLib)
         end
     })
 end
+Logic.AllTickets = {} 
 
-
--- نضع الجدول خارج الدالة ليكون مشتركاً بين اللاعب والمطور
--- // الوحدة الأسطورية للـ Support
--- // الوحدة الأسطورية المحدثة: Support & Admin Logic
 function Logic.LoadEliteSupportModule(Window, OrionLib)
     local Players = game:GetService("Players")
-    local TweenService = game:GetService("TweenService")
     local LocalPlayer = Players.LocalPlayer
     
-    -- // دالة مساعدة لتأثيرات الأزرار (إضاءة عند الضغط)
-    local function ApplyButtonEffect(btn)
-        btn.MouseButton1Click:Connect(function()
-            btn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            task.wait(0.1)
-            btn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-        end)
-    end
-
-    -- // ///////////////////////////////////////////////////////////
-    -- // قسم الدعم (المستخدم)
-    -- // ///////////////////////////////////////////////////////////
-    local SupportTab = Window:MakeTab({Name = "🎫 الدعم الفني", Icon = "rbxassetid://11429532655"})
-    SupportTab:AddSection({Name = "✨ إرسال تذكرة جديدة"})
+    -- // 1. قسم اللاعب (إرسال الطلبات)
+    local SupportTab = Window:MakeTab({Name = "🎫 الدعم", Icon = "rbxassetid://11429532655"})
+    SupportTab:AddSection({Name = "✨ إرسال اقتراح"})
     
     local UserInput = ""
-    SupportTab:AddTextbox({Name = "اكتب اقتراحك أو مشكلتك...", Default = "", Callback = function(v) UserInput = v end})
+    SupportTab:AddTextbox({Name = "اكتب اقتراحك هنا...", Default = "", Callback = function(v) UserInput = v end})
 
     SupportTab:AddButton({
-        Name = "🚀 إرسال التذكرة",
+        Name = "📥 إرسال الطلب",
         Callback = function()
-            if #UserInput < 5 then 
-                OrionLib:MakeNotification({Name = "خطأ", Content = "يجب أن يكون النص أكثر من 5 أحرف", Time = 3})
-                return 
-            end
+            if #UserInput < 5 then return end
             local ID = "AH-" .. math.random(1000, 9999)
             table.insert(Logic.AllTickets, {
                 ID = ID, User = LocalPlayer.Name, UserId = LocalPlayer.UserId, 
                 Content = UserInput, Status = "⏳ قيد المراجعة"
             })
-            OrionLib:MakeNotification({Name = "تم الإرسال!", Content = "رقم تذكرتك: " .. ID, Time = 3})
+            OrionLib:MakeNotification({Name = "تم الإرسال", Content = "رقم تذكرتك: " .. ID, Time = 3})
         end
     })
 
-    -- // ///////////////////////////////////////////////////////////
-    -- // واجهة العرض (Pop-up الأسطورية)
-    -- // ///////////////////////////////////////////////////////////
+    SupportTab:AddSection({Name = "📊 حالتي"})
+    SupportTab:AddButton({
+        Name = "🔄 تحديث حالة طلباتي",
+        Callback = function()
+            local found = false
+            for _, t in pairs(Logic.AllTickets) do
+                if t.User == LocalPlayer.Name then
+                    OrionLib:MakeNotification({Name = "تذكرة " .. t.ID, Content = "الحالة الحالية: " .. t.Status, Time = 5})
+                    found = true
+                end
+            end
+            if not found then OrionLib:MakeNotification({Name = "تنبيه", Content = "لم ترسل أي طلبات بعد.", Time = 3}) end
+        end
+    })
+
+    -- // 2. واجهة العرض الأسطورية (Popup GUI) - نسخة محسنة جمالياً فقط
     local function ShowTicketDetailGUI(t)
         local ScreenGui = Instance.new("ScreenGui", (gethui and gethui()) or game.CoreGui)
         ScreenGui.Name = "EliteTicketDetail"
         
-        -- خلفية ضبابية
-        local Backdrop = Instance.new("Frame", ScreenGui)
-        Backdrop.Size = UDim2.new(1, 0, 1, 0)
-        Backdrop.BackgroundColor3 = Color3.new(0, 0, 0)
-        Backdrop.BackgroundTransparency = 0.5
-        
-        -- الصندوق الرئيسي بتصميم Glassmorphism
-        local MainFrame = Instance.new("Frame", Backdrop)
-        MainFrame.Size = UDim2.new(0, 450, 0, 500)
-        MainFrame.Position = UDim2.new(0.5, -225, 0.5, -250)
-        MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+        local MainFrame = Instance.new("Frame", ScreenGui)
+        MainFrame.Size = UDim2.new(0, 500, 0, 400)
+        MainFrame.Position = UDim2.new(0.5, -250, 0.5, -200)
+        MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25) -- لون أعمق
         MainFrame.BorderSizePixel = 0
-        Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 20)
+        Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 15)
         
-        -- إطار مضيء
+        -- إضافة تدرج لوني خفيف للجمال
+        local Gradient = Instance.new("UIGradient", MainFrame)
+        Gradient.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 35, 45)), ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 25))})
+        Gradient.Rotation = 45
+        
         local Stroke = Instance.new("UIStroke", MainFrame)
-        Stroke.Color = Color3.fromRGB(100, 200, 255)
+        Stroke.Color = Color3.fromRGB(222, 255, 154)
         Stroke.Thickness = 2
+
+        local Avatar = Instance.new("ImageLabel", MainFrame)
+        Avatar.Size = UDim2.new(0, 90, 0, 90)
+        Avatar.Position = UDim2.new(0, 20, 0, 20)
+        Avatar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        Instance.new("UICorner", Avatar).CornerRadius = UDim.new(1, 0)
         
-        -- معلومات التذكرة
-        local Title = Instance.new("TextLabel", MainFrame)
-        Title.Size = UDim2.new(1, 0, 0, 50)
-        Title.Text = "تذكرة: " .. t.ID
-        Title.TextColor3 = Color3.new(1, 1, 1)
-        Title.Font = Enum.Font.GothamBlack
-        Title.TextSize = 24
-        Title.BackgroundTransparency = 1
-        
-        local ContentBox = Instance.new("ScrollingFrame", MainFrame)
-        ContentBox.Size = UDim2.new(0.9, 0, 0.4, 0)
-        ContentBox.Position = UDim2.new(0.05, 0, 0.15, 0)
-        ContentBox.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
-        ContentBox.ScrollBarThickness = 5
+        task.spawn(function()
+            Avatar.Image = Players:GetUserThumbnailAsync(t.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+        end)
+
+        local Info = Instance.new("TextLabel", MainFrame)
+        Info.Size = UDim2.new(0, 350, 0, 40)
+        Info.Position = UDim2.new(0, 120, 0, 25)
+        Info.Text = "اللاعب: " .. t.User .. "\nID: " .. t.UserId
+        Info.TextColor3 = Color3.fromRGB(222, 255, 154)
+        Info.Font = Enum.Font.GothamBold
+        Info.TextSize = 16
+        Info.BackgroundTransparency = 1
+        Info.TextXAlignment = Enum.TextXAlignment.Left
+
+        local ContentBox = Instance.new("Frame", MainFrame)
+        ContentBox.Size = UDim2.new(0, 460, 0, 190)
+        ContentBox.Position = UDim2.new(0, 20, 0, 130)
+        ContentBox.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
         Instance.new("UICorner", ContentBox).CornerRadius = UDim.new(0, 10)
         
-        local Desc = Instance.new("TextLabel", ContentBox)
-        Desc.Size = UDim2.new(1, -10, 1, 0)
-        Desc.Position = UDim2.new(0, 5, 0, 0)
-        Desc.Text = t.Content
-        Desc.TextColor3 = Color3.new(1, 1, 1)
-        Desc.TextWrapped = true
-        Desc.BackgroundTransparency = 1
-        
-        -- أزرار التحكم للمطور
-        if LocalPlayer.Name == "tatitoyo89" then
-            local BtnContainer = Instance.new("Frame", MainFrame)
-            BtnContainer.Size = UDim2.new(0.9, 0, 0, 120)
-            BtnContainer.Position = UDim2.new(0.05, 0, 0.65, 0)
-            BtnContainer.BackgroundTransparency = 1
-            
-            local function CreateBtn(text, color, status, pos)
-                local b = Instance.new("TextButton", BtnContainer)
-                b.Size = UDim2.new(0.45, 0, 0, 40)
-                b.Position = pos
-                b.BackgroundColor3 = color
-                b.Text = text
-                b.Font = Enum.Font.GothamBold
-                b.TextColor3 = Color3.white
-                Instance.new("UICorner", b).CornerRadius = UDim.new(0, 8)
-                b.MouseButton1Click:Connect(function()
-                    t.Status = status
-                    OrionLib:MakeNotification({Name = "تم التحديث", Content = "الحالة: " .. status, Time = 2})
-                end)
-                return b
-            end
-            
-            CreateBtn("✅ مقبول", Color3.fromRGB(46, 204, 113), "✅ مقبول", UDim2.new(0, 0, 0, 0))
-            CreateBtn("❌ مرفوض", Color3.fromRGB(231, 76, 60), "❌ مرفوض", UDim2.new(0.55, 0, 0, 0))
-            CreateBtn("⏳ قيد المراجعة", Color3.fromRGB(52, 152, 219), "⏳ قيد المراجعة", UDim2.new(0, 0, 0, 50))
-            CreateBtn("🗑️ حذف التذكرة", Color3.fromRGB(100, 100, 100), "حذف", UDim2.new(0.55, 0, 0, 50)).MouseButton1Click:Connect(function()
-                Backdrop:Destroy()
-            end)
-        end
-        
-        -- زر إغلاق
+        local TitleText = Instance.new("TextLabel", ContentBox)
+        TitleText.Size = UDim2.new(1, 0, 0, 30)
+        TitleText.Text = "  نص الاقتراح:"
+        TitleText.TextColor3 = Color3.fromRGB(150, 150, 150)
+        TitleText.Font = Enum.Font.GothamBold
+        TitleText.TextSize = 14
+        TitleText.TextXAlignment = Enum.TextXAlignment.Left
+        TitleText.BackgroundTransparency = 1
+
+        local BodyText = Instance.new("TextLabel", ContentBox)
+        BodyText.Size = UDim2.new(1, -20, 1, -30)
+        BodyText.Position = UDim2.new(0, 10, 0, 30)
+        BodyText.Text = t.Content
+        BodyText.TextColor3 = Color3.fromRGB(255, 255, 255)
+        BodyText.Font = Enum.Font.Gotham
+        BodyText.TextSize = 16
+        BodyText.TextWrapped = true
+        BodyText.TextYAlignment = Enum.TextYAlignment.Top
+        BodyText.BackgroundTransparency = 1
+
         local Close = Instance.new("TextButton", MainFrame)
-        Close.Size = UDim2.new(0, 40, 0, 40)
-        Close.Position = UDim2.new(0.9, 0, 0.05, 0)
-        Close.Text = "X"
+        Close.Size = UDim2.new(0, 120, 0, 40)
+        Close.Position = UDim2.new(0.5, -60, 1, -55)
+        Close.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+        Close.Text = "إغلاق النافذة"
         Close.TextColor3 = Color3.white
-        Close.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-        Instance.new("UICorner", Close).CornerRadius = UDim.new(1, 0)
-        Close.MouseButton1Click:Connect(function() Backdrop:Destroy() end)
+        Close.Font = Enum.Font.GothamBold
+        Instance.new("UICorner", Close).CornerRadius = UDim.new(0, 8)
+        Close.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
     end
 
-    -- // ///////////////////////////////////////////////////////////
-    -- // قسم المطورين (إدارة قوية وأنيقة)
-    -- // ///////////////////////////////////////////////////////////
+    -- // 3. قسم المطورين (لـ tatitoyo89 فقط)
     if LocalPlayer.Name == "tatitoyo89" then
         local DevTab = Window:MakeTab({Name = "👑 إدارة المطورين", Icon = "rbxassetid://7733964724"})
         local SelectedTicketID = nil
         
         local DevDropdown = DevTab:AddDropdown({
-            Name = "تذاكر المستخدمين",
-            Options = {"حدث القائمة..."},
-            Callback = function(v) SelectedTicketID = string.match(v, "(AH%-%d+)") end
+            Name = "اختر تذكرة",
+            Options = {"حدث القائمة أولاً"},
+            Callback = function(v) 
+                SelectedTicketID = string.match(v, "(AH%-%d+)")
+            end
         })
 
-        DevTab:AddButton({Name = "🔄 تحديث التذاكر", Callback = function()
-            local opts = {}
-            for _, t in pairs(Logic.AllTickets) do table.insert(opts, t.ID .. " | " .. t.User) end
-            DevDropdown:Refresh(#opts > 0 and opts or {"لا توجد تذاكر"}, true)
-        end})
+        DevTab:AddButton({
+            Name = "🔄 تحديث قائمة الطلبات",
+            Callback = function()
+                local opts = {}
+                for _, t in pairs(Logic.AllTickets) do table.insert(opts, t.ID .. " | " .. t.User) end
+                if #opts == 0 then opts = {"لا توجد طلبات"} end
+                DevDropdown:Refresh(opts, true)
+            end
+        })
 
-        DevTab:AddButton({Name = "👁️ عرض التفاصيل كاملة", Callback = function()
+        DevTab:AddButton({
+            Name = "👁️ عرض التفاصيل الأسطورية",
+            Callback = function()
+                if not SelectedTicketID then return end
+                for _, t in pairs(Logic.AllTickets) do
+                    if t.ID == SelectedTicketID then ShowTicketDetailGUI(t) break end
+                end
+            end
+        })
+
+        local function UpdateTicketStatus(newStatus)
             if not SelectedTicketID then return end
             for _, t in pairs(Logic.AllTickets) do
-                if t.ID == SelectedTicketID then ShowTicketDetailGUI(t) break end
+                if t.ID == SelectedTicketID then
+                    t.Status = newStatus
+                    OrionLib:MakeNotification({Name = "تم التحديث", Content = "أصبحت الحالة: " .. newStatus, Time = 3})
+                    break
+                end
             end
-        end})
+        end
+
+        DevTab:AddButton({Name = "✅ قبول", Callback = function() UpdateTicketStatus("✅ مقبول") end})
+        DevTab:AddButton({Name = "❌ رفض", Callback = function() UpdateTicketStatus("❌ مرفوض") end})
+        DevTab:AddButton({Name = "⏳ قيد المراجعة", Callback = function() UpdateTicketStatus("⏳ قيد المراجعة") end})
     end
 end
+        
 
 return Logic
