@@ -342,7 +342,7 @@ function Logic.LoadEliteSupportModule(Window, OrionLib)
         
         -- الحل الجذري للزر ليعمل فوراً عند اللمس/الضغط قبل تفكير النظام بالسحب
         Close.MouseButton1Down:Connect(function() 
-            MainFrame:Destroy() 
+            MainFrame.Visible = false
         end)
     end
 
