@@ -335,7 +335,7 @@ function Logic.LoadEliteSupportModule(Window, OrionLib)
         Close.TextColor3 = Color3.white
         Close.Font = Enum.Font.GothamBold
         Instance.new("UICorner", Close).CornerRadius = UDim.new(0, 8)
-        Close.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
+        Close.Activated:Connect(function() ScreenGui:Destroy() end)
     end
 
     -- // 3. قسم المطورين (لـ tatitoyo89 فقط)
@@ -390,3 +390,4 @@ end
         
 
 return Logic
+
