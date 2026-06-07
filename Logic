@@ -1,6 +1,6 @@
 local Logic = {}
 Logic.TargetPlayers = {}
-
+Logic.AllTickets = {} 
 
 function Logic.StartProSpam(commandsList, enabledTable, stackCount)
     task.spawn(function()
@@ -22,7 +22,6 @@ function Logic.StartProSpam(commandsList, enabledTable, stackCount)
         end
     end)
 end
-
 
 function Logic.ShowRealisticHDAdminAlert(devType, username, discordInfo, neonColor)
     local AlertGui = Instance.new("ScreenGui")
@@ -127,30 +126,15 @@ function Logic.ShowRealisticHDAdminAlert(devType, username, discordInfo, neonCol
     inTween:Play()
 end
 
-
 function Logic.SetupProProtection(Window, OrionLib)
-    local ProtectTab = Window:MakeTab({
-        Name = "🛡️ الحماية", 
-        Icon = "rbxassetid://11429532655"
-    })
-
-
+    local ProtectTab = Window:MakeTab({Name = "🛡️ الحماية", Icon = "rbxassetid://11429532655"})
     ProtectTab:AddSection({Name = "✨ حالة نظام الدفاع"})
     local StatusLabel = ProtectTab:AddLabel("الحالة: النظام في وضع الاستعداد 🟢")
-
-
     local States = {Logs = false, Clogs = false, NV = false}
 
-
     local function Notify(Title, Content)
-        OrionLib:MakeNotification({
-            Name = Title,
-            Content = Content,
-            Image = "rbxassetid://4483345998",
-            Time = 3
-        })
+        OrionLib:MakeNotification({Name = Title, Content = Content, Image = "rbxassetid://4483345998", Time = 3})
     end
-
 
     local function Monitor()
         local PlayerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -169,45 +153,31 @@ function Logic.SetupProProtection(Window, OrionLib)
     end
     task.spawn(Monitor)
 
-
     ProtectTab:AddSection({Name = "⚙️ إعدادات التحكم"})
-    
     ProtectTab:AddToggle({
-        Name = "🛡 تفعيل حماية Logs", 
-        Default = false, 
-        Callback = function(V) 
+        Name = "🛡 تفعيل حماية Logs", Default = false, Callback = function(V) 
             States.Logs = V
             StatusLabel:Set(V and "الحالة: الحماية مفعلة ✅" or "الحالة: النظام في وضع الاستعداد 🟢")
             Notify("نظام الحماية", V and "تم تشغيل حماية الأوامر!" or "تم إيقاف حماية الأوامر.")
         end
     })
-
-
     ProtectTab:AddToggle({
-        Name = "🛡 تفعيل حماية CLogs", 
-        Default = false, 
-        Callback = function(V) 
+        Name = "🛡 تفعيل حماية CLogs", Default = false, Callback = function(V) 
             States.Clogs = V
             Notify("نظام الحماية", V and "تم تشغيل حماية الشات!" or "تم إيقاف حماية الشات.")
         end
     })
-
-
     ProtectTab:AddToggle({
-        Name = "👻 منع الاختفاء (Anti-NV)", 
-        Default = false, 
-        Callback = function(V) 
+        Name = "👻 منع الاختفاء (Anti-NV)", Default = false, Callback = function(V) 
             States.NV = V
             Notify("نظام الحماية", V and "تم تفعيل وضع الظهور الدائم!" or "تم إيقاف وضع الظهور.")
             if V then task.spawn(function() while States.NV do if game.Players.LocalPlayer.Character then for _,p in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do if p:IsA("BasePart") then p.Transparency = 0 end end end task.wait(0.3) end end) end
         end
     })
 
-
     ProtectTab:AddSection({Name = "🛠️ أدوات الطوارئ"})
     ProtectTab:AddButton({
-        Name = "🧹 مسح السجلات فوراً (Manual Clean)", 
-        Callback = function()
+        Name = "🧹 مسح السجلات فوراً (Manual Clean)", Callback = function()
             local Interface = game.Players.LocalPlayer.PlayerGui:FindFirstChild("HDAdminInterface")
             if Interface then
                 if Interface:FindFirstChild("CommandMenucommandLogs") then Interface.CommandMenucommandLogs:Destroy() end
@@ -219,13 +189,11 @@ function Logic.SetupProProtection(Window, OrionLib)
         end
     })
 end
-Logic.AllTickets = {} 
 
 function Logic.LoadEliteSupportModule(Window, OrionLib)
     local Players = game:GetService("Players")
     local LocalPlayer = Players.LocalPlayer
     
-    -- // 1. قسم اللاعب (إرسال الطلبات)
     local SupportTab = Window:MakeTab({Name = "🎫 الدعم", Icon = "rbxassetid://11429532655"})
     SupportTab:AddSection({Name = "✨ إرسال اقتراح"})
     
@@ -260,15 +228,17 @@ function Logic.LoadEliteSupportModule(Window, OrionLib)
         end
     })
 
-    -- // 2. واجهة العرض الأسطورية (Popup GUI)
     local function ShowTicketDetailGUI(t)
-        local ScreenGui = Instance.new("ScreenGui", (gethui and gethui()) or game.CoreGui)
+        local safeGui = (gethui and gethui()) or game:GetService("CoreGui") or game.Players.LocalPlayer:WaitForChild("PlayerGui")
+        local ScreenGui = Instance.new("ScreenGui", safeGui)
         ScreenGui.Name = "EliteTicketDetail"
         ScreenGui.ResetOnSpawn = false
         
         local MainFrame = Instance.new("Frame", ScreenGui)
         MainFrame.Size = UDim2.new(0, 380, 0, 280)
-        MainFrame.Position = UDim2.new(0.5, -190, 0.5, -140)
+        -- ⚠️ تمركز حديث لحماية الواجهة من الهروب في شاشات الموبايل
+        MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+        MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
         MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
         MainFrame.BorderSizePixel = 0
         Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 12)
@@ -331,45 +301,39 @@ function Logic.LoadEliteSupportModule(Window, OrionLib)
 
         local Close = Instance.new("TextButton", MainFrame)
         Close.Size = UDim2.new(0, 110, 0, 32)
-        Close.Position = UDim2.new(0.5, -55, 1, -45)
+        -- ⚠️ تمركز زر الإغلاق ليظل دائماً في المنتصف السفلي
+        Close.AnchorPoint = Vector2.new(0.5, 1)
+        Close.Position = UDim2.new(0.5, 0, 1, -15)
         Close.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
         Close.Text = "إغلاق النافذة"
-        Close.TextColor3 = Color3.white
+        -- ⚠️ الإصلاح الأساسي للخطأ هنا
+        Close.TextColor3 = Color3.fromRGB(255, 255, 255) 
         Close.Font = Enum.Font.GothamBold
         Close.TextSize = 13
         Close.ZIndex = 10 
         Instance.new("UICorner", Close).CornerRadius = UDim.new(0, 6)
         
-        -- [[ العبقرية تبدأ هنا: التقاط النقرة فوراً وتدمير الشاشة بالكامل ]] --
         Close.InputBegan:Connect(function(input)
-            -- نلتقط لمسة الموبايل (Touch) أو نقرة الماوس (MouseButton1) فوراً
             if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                ScreenGui:Destroy() -- Destroy تمسحها من الذاكرة نهائياً وتمنع تراكم الشاشات الشفافة!
+                ScreenGui:Destroy()
             end
         end)
         
-        -- احتياط إضافي للمحاكي أو الأجهزة البطيئة
-        Close.Activated:Connect(function()
-            ScreenGui:Destroy()
-        end)
+        Close.Activated:Connect(function() ScreenGui:Destroy() end)
     end
 
-    -- // 3. قسم المطورين (لـ tatitoyo89 فقط)
     if LocalPlayer.Name == "tatitoyo89" then
         local DevTab = Window:MakeTab({Name = "👑 إدارة المطورين", Icon = "rbxassetid://7733964724"})
         local SelectedTicketID = nil
         
         local DevDropdown = DevTab:AddDropdown({
-            Name = "اختر تذكرة",
-            Options = {"حدث القائمة أولاً"},
-            Callback = function(v) 
+            Name = "اختر تذكرة", Options = {"حدث القائمة أولاً"}, Callback = function(v) 
                 SelectedTicketID = string.match(v, "(AH%-%d+)")
             end
         })
 
         DevTab:AddButton({
-            Name = "🔄 تحديث قائمة الطلبات",
-            Callback = function()
+            Name = "🔄 تحديث قائمة الطلبات", Callback = function()
                 local opts = {}
                 for _, t in pairs(Logic.AllTickets) do table.insert(opts, t.ID .. " | " .. t.User) end
                 if #opts == 0 then opts = {"لا توجد طلبات"} end
@@ -378,8 +342,7 @@ function Logic.LoadEliteSupportModule(Window, OrionLib)
         })
 
         DevTab:AddButton({
-            Name = "👁️ عرض التفاصيل الأسطورية",
-            Callback = function()
+            Name = "👁️ عرض التفاصيل الأسطورية", Callback = function()
                 if not SelectedTicketID then return end
                 for _, t in pairs(Logic.AllTickets) do
                     if t.ID == SelectedTicketID then ShowTicketDetailGUI(t) break end
